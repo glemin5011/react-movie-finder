@@ -5,18 +5,24 @@
 class MovieFinder extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      results: [],
+    };
   }
 
   render() {
+    const { results } = this.state;
     return (
       <React.Fragment>
         <div className="container-fluid">
+          <h1 className="text-center">Movie Finder</h1>
           <div className="row">
             <UserInput />
+            {results.map((movie) => {
+              return null; //returns nothing for now
+            })}
           </div>
-          <div className="row">
-            <Movies />
-          </div>
+          <div className="row"></div>
         </div>
       </React.Fragment>
     );
@@ -27,15 +33,36 @@ class UserInput extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      movie: "",
+      searchTerm: "",
     };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleChange(event) {
+    this.setState({ searchTerm: event.target.value });
+  }
+
+  handleSubmit(event) {
+    event.preventDefault();
   }
   render() {
+    const { searchTerm } = this.state;
     return (
-      <React.Fragment>
-        <input type="text" placeholder="movie" />
-        <button className="btn btn-primary"></button>
-      </React.Fragment>
+      <div className="col-4">
+        <form onSubmit={this.handleSubmit} className="form-inline my-4">
+          <input
+            type="text"
+            className="form-control mr-sm-2"
+            placeholder="frozen"
+            value={searchTerm}
+            onChange={this.handleChange}
+          />
+          <button type="submit" className="btn btn-primary">
+            Submit
+          </button>
+        </form>
+      </div>
     );
   }
 }
@@ -60,3 +87,5 @@ class Movies extends React.Component {
     );
   }
 }
+
+ReactDOM.render(<MovieFinder />, document.getElementById("root"));
