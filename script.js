@@ -72,13 +72,19 @@ class UserInput extends React.Component {
 
     //AJAX request to OMDBAPI to get a list of results
 
+    const checkStatus = (response) => {
+      if (response.ok) {
+        //.ok returns true if response status is 200-299
+        return response;
+      }
+      throw new Error("Request was either a 404 or 500");
+    };
+
+    const json = (response) => response.json();
+
     fetch(`https://www.omdbapi.com/?s=${searchTerm}&apikey=61c1fa07`)
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        }
-        throw new Error("Request was either a 404 or 500");
-      })
+      .then(checkStatus)
+      .then(json)
       .then((data) => {
         if (data.Response === "False") {
           throw new Error(data.Error);
