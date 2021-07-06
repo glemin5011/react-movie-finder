@@ -5,8 +5,6 @@
 class MovieFinder extends React.Component {
   constructor(props) {
     super(props);
-    //Ref for error messages
-    this.childRef = React.createRef();
     this.state = {
       results: [],
       error: "",
@@ -14,12 +12,19 @@ class MovieFinder extends React.Component {
     this.addMovieResults = this.addMovieResults.bind(this);
   }
 
-  addMovieResults(data, errorMessage) {
-    this.setState({ results: data, error: errorMessage });
+  addMovieResults(data) {
+    if (Array.isArray(data) === true) {
+      this.setState({ results: data, error: "" });
+      console.log(this.state.results);
+    } else {
+      this.setState({ results: "", error: data });
+      console.log(this.state.error);
+    }
   }
 
   render() {
     const { results, error } = this.state;
+
     return (
       <React.Fragment>
         <div className="container-fluid">
@@ -27,12 +32,13 @@ class MovieFinder extends React.Component {
           <div className="row">
             <UserInput onSubmit={this.addMovieResults} />
             {(() => {
-              if (error) {
-                return error;
+              if (!error) {
+                return results.map((movie) => {
+                  return <Movie key={movie.imdbID} movie={movie} />;
+                });
+              } else {
+                return <h1>{error}</h1>;
               }
-              return results.map((movie) => {
-                return <Movie key={movie.imdbID} movie={movie} />;
-              });
             })()}
           </div>
         </div>
@@ -46,7 +52,6 @@ class UserInput extends React.Component {
     super(props);
     this.state = {
       searchTerm: "",
-      //error: "",
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -79,14 +84,13 @@ class UserInput extends React.Component {
           throw new Error(data.Error);
         }
         if (data.Response === "True" && data.Search) {
-          this.props.onSubmit({ results: data.Search, error: "" });
+          this.props.onSubmit(data.Search);
           //this.setState({ error: "" });
         }
       })
       .catch((error) => {
         //this.setState({ error: error.message });
-        this.props.onSubmit({ error: error.message });
-        console.log(error);
+        this.props.onSubmit(error.message);
       });
   }
   render() {
@@ -94,16 +98,18 @@ class UserInput extends React.Component {
     return (
       <div className="col-4">
         <form onSubmit={this.handleSubmit} className="form-inline my-4">
-          <input
-            type="text"
-            className="form-control mr-sm-2"
-            placeholder="frozen"
-            value={searchTerm}
-            onChange={this.handleChange}
-          />
-          <button type="submit" className="btn btn-primary">
-            Submit
-          </button>
+          <div className="input-group mb-3">
+            <input
+              type="text"
+              className="form-control form-control-lg"
+              placeholder="Movie name"
+              value={searchTerm}
+              onChange={this.handleChange}
+            />
+            <button type="submit" className="btn btn-lg btn-primary">
+              Submit
+            </button>
+          </div>
         </form>
       </div>
     );
